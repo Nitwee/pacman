@@ -1,0 +1,135 @@
+digraph PacManArchitecture {
+    graph [
+        rankdir=TB,
+        bgcolor="white",
+        fontname="Helvetica",
+        nodesep=0.35,
+        ranksep=0.55,
+        splines=spline,
+        compound=true
+    ];
+    node [
+        fontname="Helvetica",
+        fontsize=11,
+        shape=box,
+        style="rounded,filled",
+        color="#1f2937",
+        fontcolor="white",
+        margin="0.18,0.10"
+    ];
+    edge [
+        fontname="Helvetica",
+        fontsize=9,
+        color="#374151",
+        arrowsize=0.7
+    ];
+
+    App [
+        label="App\n(MAIN_MENU | PLAYING | PAUSED | INSTRUCTIONS\n| GAME_OVER | VICTORY | HIGHSCORE_ENTRY\n| LEADERBOARD | OPTIONS\n| CONFIRM_QUIT | CONFIRM_MAIN_MENU)",
+        fillcolor="#1e3a8a",
+        fontsize=12
+    ];
+
+    subgraph cluster_services {
+        label="Services";
+        labeljust="l";
+        fontname="Helvetica";
+        fontsize=11;
+        style="rounded,dashed";
+        color="#0f766e";
+        bgcolor="#ecfdf5";
+        node [fillcolor="#0f766e"];
+        ConfigMgr  [label="ConfigManager\n(parser → validator → Pydantic models)"];
+        HSStore    [label="HighscoreStore\n(top-10, JSON-backed)"];
+        Assets     [label="AssetManager\n(sprite sheet, palettes, animations, fonts)"];
+        Sounds     [label="SoundManager\n(SFX + music, intro-to-loop chain)"];
+        Display    [label="DisplayManager\n(window, resolution, fullscreen)"];
+        Input      [label="InputRouter\n(routes InputAction per state)"];
+    }
+
+    subgraph cluster_engine {
+        label="GameEngine  (one instance per game)";
+        labeljust="l";
+        fontname="Helvetica";
+        fontsize=11;
+        style="rounded,dashed";
+        color="#7c2d12";
+        bgcolor="#fff7ed";
+        node [fillcolor="#7c2d12"];
+
+        GameEngine  [label="GameEngine\n(EngineState machine)", fontsize=12];
+
+        subgraph cluster_engine_state {
+            label="";
+            style=invis;
+            node [fillcolor="#b45309"];
+            EngineState [label="EngineState\nSTARTING → PLAYING ↔ DYING\n/ LEVEL_TRANSITION\n→ GAME_OVER / GAME_WON"];
+        }
+
+        Maze       [label="Maze\n(wraps mazegen, perfect=False\nderives spawns / pacgums)",   fillcolor="#374151"];
+        CharMgr    [label="CharacterManager",                                                  fillcolor="#374151"];
+        Pacman     [label="Pacman\n(direction buffer, smooth step,\nspeed multiplier, noclip)", fillcolor="#374151"];
+        Ghosts     [label="Ghost ×4\n(Blinky / Pinky / Inky / Clyde)",                        fillcolor="#374151"];
+        Timers     [label="Timer ×6\n(intro / death / level-transition /\nfreeze / score-overlay / super-pacgum)", fillcolor="#374151"];
+        Cheats     [label="Cheats\n(invincibility, ghost_freeze,\ntimer_freeze)",              fillcolor="#374151"];
+        Events     [label="events list\n(ItemEatenEvent, GameEvent\none frame lifetime)",      fillcolor="#374151"];
+        MusicCue   [label="music_cue\n(MusicCue enum read by App)",                            fillcolor="#374151"];
+
+        GameEngine -> EngineState;
+        GameEngine -> Maze;
+        GameEngine -> CharMgr;
+        CharMgr    -> Pacman;
+        CharMgr    -> Ghosts;
+        GameEngine -> Timers;
+        GameEngine -> Cheats;
+        GameEngine -> Events;
+        GameEngine -> MusicCue;
+    }
+
+    subgraph cluster_screens {
+        label="ScreenManager";
+        labeljust="l";
+        fontname="Helvetica";
+        fontsize=11;
+        style="rounded,dashed";
+        color="#6b21a8";
+        bgcolor="#faf5ff";
+        node [fillcolor="#6b21a8"];
+        Screens        [label="ScreenManager", fontsize=12];
+        MainMenu       [label="MainMenuScreen\n(animated logo + Pac-Man chase)",        fillcolor="#374151"];
+        PlayingScr     [label="PlayingScreen\n(maze, HUD, level-transition\noverlay, palette flicker)", fillcolor="#374151"];
+        PauseScr       [label="PauseScreen\n(+ CONFIRM_QUIT overlay\n+ CONFIRM_MAIN_MENU overlay)", fillcolor="#374151"];
+        EndScr         [label="GameOverScreen\n/ VictoryScreen",                         fillcolor="#374151"];
+        HSEntry        [label="HighscoreEntryScreen",                                    fillcolor="#374151"];
+        Leaderboard    [label="LeaderboardScreen",                                       fillcolor="#374151"];
+        Instructions   [label="InstructionsScreen",                                      fillcolor="#374151"];
+        Options        [label="OptionsScreen\n(resolution / fullscreen / sound)",        fillcolor="#374151"];
+
+        Screens -> MainMenu;
+        Screens -> PlayingScr;
+        Screens -> PauseScr;
+        Screens -> EndScr;
+        Screens -> HSEntry;
+        Screens -> Leaderboard;
+        Screens -> Instructions;
+        Screens -> Options;
+    }
+
+    // App → service cluster
+    App -> ConfigMgr   [lhead=cluster_services];
+    App -> HSStore;
+    App -> Assets;
+    App -> Sounds;
+    App -> Display;
+    App -> Input;
+    App -> GameEngine  [lhead=cluster_engine];
+    App -> Screens     [lhead=cluster_screens];
+
+    // Cross-cutting (dashed)
+    HSStore -> Leaderboard [style=dashed, color="#0891b2", label="load top-10\nat boot",   constraint=false];
+    HSStore -> HSEntry     [style=dashed, color="#0891b2", label="save new entry",         constraint=false];
+    Assets  -> PlayingScr  [style=dashed, color="#0891b2", label="serves sprites/fonts",  constraint=false];
+    Assets  -> Screens     [style=dashed, color="#0891b2", label="serves sprites/fonts",  constraint=false, lhead=cluster_screens];
+    GameEngine -> App      [style=dashed, color="#dc2626", label="emits GameLost/GameWon", constraint=false, ltail=cluster_engine];
+    Screens    -> App      [style=dashed, color="#dc2626", label="emits StartGame/Quit/…", constraint=false, ltail=cluster_screens];
+}

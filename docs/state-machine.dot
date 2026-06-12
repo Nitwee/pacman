@@ -1,0 +1,88 @@
+digraph PacManStateMachine {
+    graph [
+        rankdir=LR,
+        bgcolor="white",
+        fontname="Helvetica",
+        nodesep=0.4,
+        ranksep=0.7,
+        splines=spline
+    ];
+    node [
+        fontname="Helvetica",
+        fontsize=11,
+        shape=box,
+        style="rounded,filled",
+        fillcolor="#1e3a8a",
+        color="#1e3a8a",
+        fontcolor="white",
+        margin="0.18,0.10"
+    ];
+    edge [
+        fontname="Helvetica",
+        fontsize=9,
+        color="#374151",
+        arrowsize=0.8
+    ];
+
+    Start          [shape=circle,       label="●", fillcolor="black", color="black", fontcolor="white", width=0.3, fixedsize=true];
+    End            [shape=doublecircle, label="●", fillcolor="black", color="black", fontcolor="white", width=0.3, fixedsize=true];
+
+    MainMenu       [label="MainMenu"];
+    Instructions   [label="Instructions"];
+    Leaderboard    [label="Leaderboard"];
+    Options        [label="Options",         fillcolor="#0f766e", color="#0f766e"];
+    Playing        [label="Playing",         fillcolor="#7c2d12", color="#7c2d12"];
+    Paused         [label="Paused",          fillcolor="#b45309", color="#b45309"];
+    ConfirmQuit    [label="ConfirmQuit",     fillcolor="#374151", color="#374151"];
+    ConfirmMain    [label="ConfirmMainMenu", fillcolor="#374151", color="#374151"];
+    Victory        [label="Victory",         fillcolor="#0f766e", color="#0f766e"];
+    GameOver       [label="GameOver",        fillcolor="#991b1b", color="#991b1b"];
+    HighscoreEntry [label="HighscoreEntry",  fillcolor="#6b21a8", color="#6b21a8"];
+
+    Start -> MainMenu;
+
+    // Main menu
+    MainMenu -> Playing      [label="Start"];
+    MainMenu -> Instructions [label="View Instructions"];
+    MainMenu -> Leaderboard  [label="View Highscores"];
+    MainMenu -> Options      [label="Options"];
+    MainMenu -> End          [label="Quit"];
+
+    Instructions -> MainMenu [label="Back"];
+    Leaderboard  -> MainMenu [label="Back"];
+    Options      -> MainMenu [label="Back"];
+
+    // Pause
+    Playing -> Paused    [label="P / Esc"];
+    Paused  -> Playing   [label="Resume"];
+    Paused  -> ConfirmMain [label="Return to Main Menu"];
+    Paused  -> ConfirmQuit [label="Quit"];
+
+    ConfirmMain -> MainMenu [label="Confirm"];
+    ConfirmMain -> Paused   [label="Cancel"];
+
+    // Quit confirmation (reachable from Playing, Paused, Victory, GameOver, HighscoreEntry)
+    ConfirmQuit -> End      [label="Confirm"];
+    ConfirmQuit -> Playing       [label="Cancel\n(origin=Playing)",        style=dashed];
+    ConfirmQuit -> Paused        [label="Cancel\n(origin=Paused)",         style=dashed];
+    ConfirmQuit -> Victory       [label="Cancel\n(origin=Victory)",        style=dashed];
+    ConfirmQuit -> GameOver      [label="Cancel\n(origin=GameOver)",       style=dashed];
+    ConfirmQuit -> HighscoreEntry [label="Cancel\n(origin=HighscoreEntry)", style=dashed];
+
+    // In-game → ConfirmQuit
+    Playing        -> ConfirmQuit [label="Quit"];
+    Victory        -> ConfirmQuit [label="Quit"];
+    GameOver       -> ConfirmQuit [label="Quit"];
+    HighscoreEntry -> ConfirmQuit [label="Quit"];
+
+    // End-of-level / end-of-game
+    Playing -> Victory  [label="all pacgums eaten\n(last level)"];
+    Playing -> GameOver [label="lives = 0\nOR timer = 0"];
+
+    Victory  -> HighscoreEntry [label="score qualifies"];
+    Victory  -> MainMenu       [label="score does\nnot qualify"];
+    GameOver -> HighscoreEntry [label="score qualifies"];
+    GameOver -> MainMenu       [label="score does\nnot qualify"];
+
+    HighscoreEntry -> Leaderboard [label="name confirmed"];
+}

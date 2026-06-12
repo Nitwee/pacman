@@ -1,0 +1,11 @@
+# Runtime dependencies
+pygame>=2.5
+./mazegen-0.2.0-py3-none-any.whl
+pydantic>=2,<3
+
+# Dev dependencies (lint / typing / formatting / tests)
+flake8>=7.0
+flake8-docstrings>=1.7
+mypy>=1.10
+black>=24.0
+pytest>=8.0

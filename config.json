@@ -1,0 +1,25 @@
+# Pac-Man — default configuration
+# Lines starting with '#' are ignored by the game's parser.
+# Invalid or missing values are clamped to safe defaults (logged warning).
+{
+  "highscore_filename": "highscore.json",
+  "lives": 3,
+  "pacgum": 200,
+  "points_per_pacgum": 10,
+  "points_per_super_pacgum": 50,
+  "points_per_ghost": 200,
+  "seed": 46,
+  "level_max_time": 90,
+  "level": [
+    {"width": 10, "height": 10},
+    {"width": 30, "height": 30},
+    {"width": 10, "height": 30},
+    {"width": 30, "height": 10},
+    {"width": 15, "height": 15},
+    {"width": 15, "height": 15},
+    {"width": 15, "height": 15},
+    {"width": 15, "height": 15},
+    {"width": 15, "height": 15},
+    {"width": 15, "height": 15}
+  ]
+}

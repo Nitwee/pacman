@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+*.so
+
+# uv / virtual env
+.venv/
+.python-version
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project runtime artefacts
+highscore.json
+*.log
+
+# Local symlink to the 42-shipped wheel (created by `make install`)
+mazegenerator-2.0.1-py3-none-any.whl
