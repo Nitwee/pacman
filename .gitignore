@@ -35,5 +35,8 @@ Thumbs.db
 highscore.json
 *.log
 
+# Pygbag build-time conversions
+*-pygbag.*
+
 # Local symlink to the 42-shipped wheel (created by `make install`)
 mazegenerator-2.0.1-py3-none-any.whl

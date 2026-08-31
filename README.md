@@ -123,12 +123,7 @@ game never crashes on a malformed config.
 
 Maze generation uses the `mazegen` package shipped as
 [`mazegen-0.2.0-py3-none-any.whl`](mazegen-0.2.0-py3-none-any.whl). The
-wheel **must not be modified or reimplemented**. The source repository of
-the assigned A-Maze-ing package is:
-
-```
-git@vogsphere.42nice.fr:vogsphere/intra-uuid-b4350d60-a313-488d-9e1b-6b04c8c4ef8d-7271824-jbarthel
-```
+wheel **must not be modified or reimplemented**.
 
 - Instantiated with `perfect=False` so the maze has loops (Pac-Man
   corridors are not a perfect tree).

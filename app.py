@@ -9,6 +9,8 @@ game.
 No game logic lives here — App only routes transitions.
 """
 
+import asyncio
+
 import pygame
 
 from audio import SoundManager
@@ -108,7 +110,11 @@ class App:
         self._chomp_toggle: bool = False
 
     def run(self) -> None:
-        """Run the main Pygame loop until quit is requested."""
+        """Run the game synchronously on desktop platforms."""
+        asyncio.run(self.run_async())
+
+    async def run_async(self) -> None:
+        """Run the game while yielding each frame to an async host."""
         pygame.init()
         try:
             self.running = True
@@ -170,6 +176,7 @@ class App:
                 self._draw_current_state(canvas)
                 self.display.present_canvas()
                 pygame.display.flip()
+                await asyncio.sleep(0)
         finally:
             if self.sounds is not None:
                 self.sounds.stop_all()
