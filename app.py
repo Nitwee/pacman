@@ -10,6 +10,7 @@ No game logic lives here — App only routes transitions.
 """
 
 import asyncio
+from collections.abc import Callable
 
 import pygame
 
@@ -113,7 +114,10 @@ class App:
         """Run the game synchronously on desktop platforms."""
         asyncio.run(self.run_async())
 
-    async def run_async(self) -> None:
+    async def run_async(
+        self,
+        on_ready: Callable[[], None] | None = None,
+    ) -> None:
         """Run the game while yielding each frame to an async host."""
         pygame.init()
         try:
@@ -130,6 +134,9 @@ class App:
                 print(f"Audio disabled {e}")
                 self.sounds = None
             prev_dying = False
+
+            if on_ready is not None:
+                on_ready()
 
             while self.running:
                 dt_ms = clock.tick(60)

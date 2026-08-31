@@ -6,6 +6,17 @@ import sys
 import zipfile
 
 
+def notify_parent(message: str) -> None:
+    """Notify the embedding page when running inside a browser."""
+    if sys.platform != "emscripten":
+        return
+
+    import platform
+
+    window = getattr(platform, "window")
+    window.parent.postMessage(message, window.location.origin)
+
+
 async def main() -> None:
     """Install the local maze package and start the web game."""
     if sys.platform == "emscripten":
@@ -18,7 +29,10 @@ async def main() -> None:
 
     from app import App
 
-    await App("config.json").run_async()
+    await App("config.json").run_async(
+        on_ready=lambda: notify_parent("pacman:ready")
+    )
+    notify_parent("pacman:quit")
 
 
 asyncio.run(main())
